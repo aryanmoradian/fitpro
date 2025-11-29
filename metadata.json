@@ -1,0 +1,8 @@
+{
+  "name": "Copy of Copy of Copy of  FitPro3999",
+  "description": "پنل جامع برای ورزشکاران جهت مدیریت برنامه تمرینی و تغذیه، رصد پیشرفت روزانه و دریافت مشاوره هوشمند.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}

@@ -1,0 +1,439 @@
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FitPro | فیت پرو</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 512 512%22%3E%3Cpath fill=%22%2358a6ff%22 d=%22M128 416H64a16 16 0 0 1-16-16V112a16 16 0 0 1 16-16h64a16 16 0 0 1 16 16v32a16 16 0 0 1-16-16H96v48h32a16 16 0 0 1 16 16v32a16 16 0 0 1-16-16H96v48h32a16 16 0 0 1 16 16v32a16 16 0 0 1-16-16z%22/%3E%3C/svg%3E">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        /* -- FitPro Standard Palette -- */
+        --fitpro-primary: #2B8A3E; /* Energy Green */
+        --fitpro-secondary: #1F1F1F; /* Dark Grey/Black */
+        --fitpro-accent: #00C16F; /* Bright Green */
+        --bg-dark: #0D1117;
+        --bg-medium: #161B22;
+        --bg-light: #21262D;
+        --border-color: #30363D;
+        --text-primary: #c9d1d9;
+        --text-secondary: #8b949e;
+        
+        --accent-blue: #3b82f6;
+        --accent-green: var(--fitpro-accent);
+        --accent-orange: #f97316;
+        --accent-red: #ef4444;
+        --accent-purple: #8b5cf6;
+        --accent-cyan: #22d3ee;
+        --accent-indigo: #818cf8;
+        --accent-yellow: #eab308;
+        --accent-pink: #ec4899;
+        --premium-gold: #FFD700;
+        --premium-neon: #0ff0fc;
+
+        --glow-blue: rgba(59, 130, 246, 0.5);
+        --glow-green: rgba(0, 193, 111, 0.5);
+      }
+      
+      /* --- PREMIUM THEMES --- */
+      body.theme-gold {
+        --fitpro-primary: #D4AF37;
+        --fitpro-accent: #FFD700;
+        --accent-blue: #D4AF37; /* Override blue with Gold */
+        --glow-blue: rgba(255, 215, 0, 0.5);
+        --glow-green: rgba(212, 175, 55, 0.5);
+        background-image: linear-gradient(135deg, #1c1905 0%, #2e2608 50%, #1a1700 100%);
+      }
+      
+      body.theme-neon {
+        --fitpro-primary: #ff00ff;
+        --fitpro-accent: #0ff0fc;
+        --bg-dark: #050510;
+        --bg-medium: #0a0a20;
+        --glow-blue: rgba(15, 240, 252, 0.6);
+        background-image: linear-gradient(135deg, #050014 0%, #10002b 50%, #000000 100%);
+      }
+
+      /* Base App Body Style */
+      body.app-dashboard, body.auth-page {
+        font-family: 'Vazirmatn', sans-serif;
+        background-color: var(--bg-dark);
+        color: var(--text-primary);
+        background-image: linear-gradient(135deg, #0d1117 0%, #1f2937 50%, #111827 100%);
+        background-size: 400% 400%;
+        animation: gradientAnimation 20s ease infinite;
+      }
+      
+      /* New Home Page Body Style */
+      body.home-page {
+        font-family: 'Vazirmatn', sans-serif;
+        background-color: #FFFFFF;
+        color: var(--fitpro-secondary);
+      }
+
+      @keyframes gradientAnimation {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+
+      /* Custom scrollbar */
+      ::-webkit-scrollbar { width: 8px; height: 8px; }
+      ::-webkit-scrollbar-track { background: var(--bg-dark); }
+      ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+
+      /* Base card style */
+      .energetic-card {
+        background: rgba(22, 27, 34, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      }
+      
+      /* Theme specific card overrides */
+      body.theme-gold .energetic-card {
+        border-color: rgba(255, 215, 0, 0.2);
+        background: rgba(30, 25, 5, 0.8);
+      }
+      body.theme-neon .energetic-card {
+        border-color: rgba(15, 240, 252, 0.3);
+        background: rgba(10, 10, 30, 0.8);
+        box-shadow: 0 0 10px rgba(15, 240, 252, 0.1);
+      }
+
+      .energetic-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.4), 0 0 20px var(--glow-green);
+        border-color: var(--fitpro-accent);
+      }
+
+      /* Button Styles */
+      .btn-primary {
+        background: linear-gradient(90deg, var(--fitpro-primary), var(--fitpro-accent));
+        color: white;
+        font-weight: bold;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(43, 138, 62, 0.2);
+      }
+      .btn-primary:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(0, 193, 111, 0.4);
+      }
+      .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: scale(1);
+        box-shadow: none;
+      }
+      
+      /* Premium Lock Overlay */
+      .premium-lock-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.7);
+        backdrop-filter: blur(4px);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-center;
+        z-index: 50;
+        border-radius: 1rem;
+        border: 1px solid var(--premium-gold);
+      }
+
+      .btn-secondary {
+        background-color: var(--bg-light);
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+      }
+      .btn-secondary:hover {
+        background-color: var(--border-color);
+        color: white;
+      }
+
+      /* Input/Textarea/Select Styles */
+      .input-styled {
+        background-color: var(--bg-medium);
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        color: var(--text-primary);
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      }
+      .input-styled:focus {
+        outline: none;
+        border-color: var(--fitpro-accent);
+        box-shadow: 0 0 0 3px var(--glow-green);
+      }
+      
+      /* Progress Bar Animations */
+      progress, .progress-bar-bg {
+        border-radius: 99px;
+        overflow: hidden;
+      }
+      progress::-webkit-progress-bar, .progress-bar-bg {
+        background-color: var(--bg-light);
+      }
+      progress::-webkit-progress-value {
+        background: linear-gradient(90deg, var(--fitpro-primary), var(--fitpro-accent));
+        transition: width 0.5s ease-out;
+      }
+      .progress-bar-fg {
+        height: 100%;
+        border-radius: 99px;
+        background: linear-gradient(90deg, var(--accent-orange), var(--accent-red));
+        transition: width 0.5s ease-out;
+        animation: pulse-light 2s infinite;
+      }
+
+      @keyframes pulse-light {
+        0% { box-shadow: 0 0 5px var(--glow-orange); }
+        50% { box-shadow: 0 0 15px var(--glow-orange); }
+        100% { box-shadow: 0 0 5px var(--glow-orange); }
+      }
+      
+      /* Recharts Customization */
+      .recharts-tooltip-wrapper {
+        background: var(--bg-light) !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: 0.5rem !important;
+      }
+      .recharts-default-legend {
+        font-size: 12px;
+      }
+      .recharts-text, .recharts-label {
+        fill: var(--text-secondary);
+      }
+      
+      /* --- Dashboard News Ticker Styles --- */
+      .ticker-container {
+        -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+        mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+      }
+
+      .ticker-move {
+        animation: marquee 60s linear infinite;
+        will-change: transform;
+      }
+
+      .ticker-container:hover .ticker-move {
+        animation-play-state: paused;
+      }
+
+      @keyframes marquee {
+        0% { transform: translateX(0%); }
+        100% { transform: translateX(-50%); }
+      }
+      
+      .glowing-blue {
+        animation: glow-blue-anim 2s infinite;
+      }
+      .glowing-green {
+        animation: glow-green-anim 2s infinite;
+      }
+      
+      @keyframes glow-blue-anim {
+        0%, 100% { box-shadow: 0 0 5px var(--glow-blue), inset 0 0 5px var(--glow-blue); }
+        50% { box-shadow: 0 0 15px var(--glow-blue), inset 0 0 10px var(--glow-blue); }
+      }
+
+      @keyframes glow-green-anim {
+        0%, 100% { box-shadow: 0 0 5px var(--glow-green), inset 0 0 5px var(--glow-green); }
+        50% { box-shadow: 0 0 15px var(--glow-green), inset 0 0 10px var(--glow-green); }
+      }
+
+      /* --- NEW: Home Page Styles --- */
+      .hero-bg {
+        background-color: #0D0D0D;
+        background-image:
+          radial-gradient(circle at 10% 20%, rgba(0, 118, 255, 0.15) 0%, transparent 40%),
+          radial-gradient(circle at 90% 80%, rgba(36, 255, 129, 0.1) 0%, transparent 40%);
+        animation: hero-bg-anim 15s ease-in-out infinite;
+      }
+
+      @keyframes hero-bg-anim {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+
+      .glass-card {
+        background: rgba(31, 31, 31, 0.5);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .glass-card:hover {
+        border-color: rgba(0, 118, 255, 0.5);
+        transform: translateY(-5px);
+        background: rgba(0, 118, 255, 0.05);
+      }
+      
+      .kpi-ticker {
+        animation: marquee 40s linear infinite;
+      }
+      
+      @keyframes float-anim {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-15px); }
+      }
+      
+      .float-animation {
+        animation: float-anim 6s ease-in-out infinite;
+      }
+
+      /* --- NEW: Contact Button Glow --- */
+      @keyframes pulse-glow {
+        0%, 100% {
+          box-shadow: 0 0 5px 1px var(--fitpro-accent), 0 0 8px 2px rgba(0, 193, 111, 0.4);
+          transform: scale(1);
+        }
+        50% {
+          box-shadow: 0 0 12px 3px var(--fitpro-accent), 0 0 20px 5px rgba(0, 193, 111, 0.6);
+          transform: scale(1.02);
+        }
+      }
+
+      .btn-contact-glow {
+        animation: pulse-glow 2.5s infinite ease-in-out;
+      }
+
+      /* --- NEW: Coach Button Glow --- */
+      @keyframes pulse-glow-blue {
+        0%, 100% {
+          box-shadow: 0 0 5px 1px var(--accent-blue), 0 0 8px 2px rgba(59, 130, 246, 0.4);
+          transform: scale(1);
+        }
+        50% {
+          box-shadow: 0 0 12px 3px var(--accent-blue), 0 0 20px 5px rgba(59, 130, 246, 0.6);
+          transform: scale(1.02);
+        }
+      }
+
+      .btn-coach-glow {
+        animation: pulse-glow-blue 2.5s infinite ease-in-out;
+      }
+
+      /* --- NEW: Heartbeat animation for footer --- */
+      @keyframes heartbeat {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.1); opacity: 0.7; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+      .heartbeat-anim {
+        animation: heartbeat 1.5s ease-in-out infinite;
+        display: inline-block;
+      }
+      
+      /* --- NEW: Auth Page Styles --- */
+      .auth-input-container {
+        position: relative;
+      }
+      .auth-input-icon {
+        position: absolute;
+        top: 50%;
+        right: 1rem;
+        transform: translateY(-50%);
+        color: var(--text-secondary);
+        pointer-events: none;
+      }
+      .auth-input {
+        padding-right: 3rem;
+      }
+      .auth-input.error {
+        border-color: var(--accent-red);
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3);
+        animation: shake 0.5s ease;
+      }
+
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+      }
+
+      .password-strength-bar {
+        height: 5px;
+        border-radius: 5px;
+        transition: width 0.3s ease, background-color 0.3s ease;
+      }
+      .password-strength-bar-bg {
+        background-color: var(--bg-medium);
+        border-radius: 5px;
+        overflow: hidden;
+      }
+      
+      /* --- NEW: Athlete Level Glow Effects --- */
+      .level-glow-semi-pro {
+        box-shadow: 0 0 25px rgba(59, 130, 246, 0.4), inset 0 0 10px rgba(59, 130, 246, 0.2);
+        border-color: rgba(59, 130, 246, 0.7);
+      }
+
+      .level-glow-professional {
+        box-shadow: 0 0 30px rgba(234, 179, 8, 0.5), inset 0 0 12px rgba(234, 179, 8, 0.3);
+        border-color: rgba(234, 179, 8, 0.8);
+      }
+
+      /* Background gradient for the level up modal */
+      .bg-gradient-radial {
+          background-image: radial-gradient(circle, var(--tw-gradient-from) 0%, transparent 70%);
+      }
+
+      /* --- NEW: Chart Highlight on Level Up --- */
+      @keyframes chart-highlight {
+        0% {
+          box-shadow: 0 0 0 0 rgba(234, 179, 8, 0), inset 0 0 0 0 rgba(234, 179, 8, 0);
+          border-color: var(--border-color);
+        }
+        50% {
+          box-shadow: 0 0 30px 8px rgba(234, 179, 8, 0.5), inset 0 0 15px 2px rgba(234, 179, 8, 0.3);
+          border-color: rgba(234, 179, 8, 1);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(234, 179, 8, 0), inset 0 0 0 0 rgba(234, 179, 8, 0);
+          border-color: var(--border-color);
+        }
+      }
+      .chart-highlight-animation {
+        animation: chart-highlight 3s ease-out;
+      }
+
+      /* --- NEW: Subscription Page Utils --- */
+      .bg-clip-text {
+        -webkit-background-clip: text;
+        background-clip: text;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/client": "https://aistudiocdn.com/react-dom@^19.2.0/client",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "recharts": "https://aistudiocdn.com/recharts@^3.5.0",
+    "axios": "https://aistudiocdn.com/axios@^1.13.2",
+    "@supabase/supabase-js": "https://aistudiocdn.com/@supabase/supabase-js@^2.86.0",
+    "@vercel/node": "https://aistudiocdn.com/@vercel/node@^5.5.13"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root" class="h-screen w-screen flex flex-col"></div>
+    <script type="module" src="./index.tsx"></script>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
