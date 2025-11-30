@@ -60,7 +60,7 @@ const Profile: React.FC<ProfileProps> = ({ profile, updateProfile, logs, setCurr
     sportsHistory: profile.sportsHistory || '',
     injuries: profile.injuries || ''
   });
-  const [goalsFormData, setGoalsFormData] = useState<Goal[]>(profile.goals);
+  const [goalsFormData, setGoalsFormData] = useState<Goal[]>(profile.goals || []);
   
   // Photo Journal State
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -74,14 +74,19 @@ const Profile: React.FC<ProfileProps> = ({ profile, updateProfile, logs, setCurr
   const [suggestions, setSuggestions] = useState('');
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
 
+  // Safe data access
+  const safeLogs = logs || [];
+  const safeMetrics = profile.metricsHistory || [];
+  const safePhotos = profile.photoGallery || [];
+
   useEffect(() => {
-    if (logs.length > 1) {
+    if (safeLogs.length > 1) {
       setIsLoadingSuggestions(true);
-      analyzeStrengthsAndWeaknesses(logs, profile.metricsHistory)
+      analyzeStrengthsAndWeaknesses(safeLogs, safeMetrics)
         .then(res => setSuggestions(res))
         .finally(() => setIsLoadingSuggestions(false));
     }
-  }, [logs, profile.metricsHistory]);
+  }, [safeLogs, safeMetrics]);
   
   const handleInfoChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setInfoFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -121,7 +126,7 @@ const Profile: React.FC<ProfileProps> = ({ profile, updateProfile, logs, setCurr
             date: new Date().toLocaleDateString('fa-IR'),
             imageUrl: reader.result as string,
         };
-        updateProfile({ ...profile, photoGallery: [...profile.photoGallery, newPhoto]});
+        updateProfile({ ...profile, photoGallery: [...safePhotos, newPhoto]});
       };
       reader.readAsDataURL(file);
     }
@@ -133,7 +138,6 @@ const Profile: React.FC<ProfileProps> = ({ profile, updateProfile, logs, setCurr
 
     setIsUploadingAvatar(true);
     try {
-      // 1. Upload to Supabase Storage
       const fileExt = file.name.split('.').pop();
       const fileName = `${profile.id}-${Date.now()}.${fileExt}`;
       const filePath = `${fileName}`;
@@ -144,15 +148,12 @@ const Profile: React.FC<ProfileProps> = ({ profile, updateProfile, logs, setCurr
 
       if (uploadError) throw uploadError;
 
-      // 2. Get Public URL
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
 
-      // 3. Update Profile State
       updateProfile({ ...profile, avatar: publicUrl });
 
-      // 4. Persist to Auth Metadata (Standard for Avatar)
       await supabase.auth.updateUser({
         data: { avatar_url: publicUrl }
       });
@@ -172,8 +173,8 @@ const Profile: React.FC<ProfileProps> = ({ profile, updateProfile, logs, setCurr
   const runComparison = async () => {
       if (selectedPhotoIds.length !== 2) return;
       setIsComparing(true);
-      const photo1 = profile.photoGallery.find(p => p.id === selectedPhotoIds[0]);
-      const photo2 = profile.photoGallery.find(p => p.id === selectedPhotoIds[1]);
+      const photo1 = safePhotos.find(p => p.id === selectedPhotoIds[0]);
+      const photo2 = safePhotos.find(p => p.id === selectedPhotoIds[1]);
       if (photo1 && photo2) {
           const result = await analyzeBodyProgress(photo1.imageUrl, photo2.imageUrl);
           setComparisonResult(result);
@@ -377,10 +378,10 @@ const Profile: React.FC<ProfileProps> = ({ profile, updateProfile, logs, setCurr
             isEditing={isGoalsEditing}
             onEdit={() => setIsGoalsEditing(true)}
             onSave={handleSaveGoals}
-            onCancel={() => { setIsGoalsEditing(false); setGoalsFormData(profile.goals); }}
+            onCancel={() => { setIsGoalsEditing(false); setGoalsFormData(profile.goals || []); }}
           >
             <div className="space-y-4">
-              {goalsFormData.length === 0 && !isGoalsEditing ? (
+              {(goalsFormData || []).length === 0 && !isGoalsEditing ? (
                 <div className="text-center text-gray-500 py-4">
                   <p>هنوز هدفی تعیین نکرده‌اید.</p>
                   <button onClick={() => setIsGoalsEditing(true)} className="text-blue-400 text-sm mt-2">اولین هدف خود را اضافه کنید</button>
@@ -416,7 +417,7 @@ const Profile: React.FC<ProfileProps> = ({ profile, updateProfile, logs, setCurr
           <ProfileCard title="شاخص‌های بدنی" icon={Scale}>
             <div className="h-48 mb-4 -mx-2">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={profile.metricsHistory}>
+                <LineChart data={safeMetrics}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
                   <XAxis dataKey="date" stroke="var(--text-secondary)" fontSize={10}/>
                   <YAxis stroke="var(--text-secondary)" domain={['auto', 'auto']} fontSize={10}/>
@@ -436,7 +437,7 @@ const Profile: React.FC<ProfileProps> = ({ profile, updateProfile, logs, setCurr
           
           <ProfileCard title="ژورنال تصویری" icon={Camera}>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-               {profile.photoGallery.map(photo => (
+               {safePhotos.map(photo => (
                   <div key={photo.id} onClick={() => togglePhotoSelection(photo.id)} className={`relative group cursor-pointer rounded-xl overflow-hidden border-2 transition ${selectedPhotoIds.includes(photo.id) ? 'border-pink-500' : 'border-transparent'}`}>
                      <img src={photo.imageUrl} alt={photo.date} className="w-full h-32 object-cover" />
                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/50 transition"></div>

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Exercise, ExerciseLibItem, TrainingSession, WeeklyWorkoutPlan, UserProfile } from '../types';
 import { Plus, Trash2, Search, Filter, PlayCircle, GripVertical, Save, Copy, ChevronDown, ChevronUp, Dumbbell, Clock, X, CheckSquare, Square, Check, User } from 'lucide-react';
@@ -236,9 +237,9 @@ const TrainingBuilder: React.FC<TrainingBuilderProps> = ({ currentPlan, updatePl
 
   const activeSession = getSession(activeDay);
 
-  // Stats
-  const totalSets = activeSession?.exercises.reduce((acc, curr) => acc + curr.sets, 0) || 0;
-  const estimatedDuration = (totalSets * 2) + (totalSets * (activeSession?.exercises[0]?.rest || 60) / 60);
+  // Stats - Safely access exercises array
+  const totalSets = activeSession?.exercises?.reduce((acc, curr) => acc + (curr.sets || 0), 0) || 0;
+  const estimatedDuration = (totalSets * 2) + (totalSets * (activeSession?.exercises?.[0]?.rest || 60) / 60);
 
   return (
     <div className="flex flex-col h-full space-y-4">
@@ -301,7 +302,7 @@ const TrainingBuilder: React.FC<TrainingBuilderProps> = ({ currentPlan, updatePl
                </div>
 
                <div className="flex-1 overflow-y-auto space-y-3 pr-2 custom-scrollbar">
-                 {activeSession.exercises.length === 0 ? (
+                 {!activeSession.exercises || activeSession.exercises.length === 0 ? (
                    <div className="h-full flex flex-col items-center justify-center text-gray-500 border-2 border-dashed border-gray-700 rounded-xl">
                       <Dumbbell className="w-12 h-12 mb-2 opacity-50" />
                       <p>حرکتی اضافه نشده است</p>

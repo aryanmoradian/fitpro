@@ -61,14 +61,14 @@ const DailyTracker: React.FC<DailyTrackerProps> = ({
   // --- HANDLERS ---
   
   const getPreviousPerformance = (exerciseId: string, setNumber: number): { weight: number, reps: number } | null => {
-    if (logs.length === 0) return null;
+    if (!logs || logs.length === 0) return null;
     
     // Find the most recent log that contains this exercise
     const reversedLogs = [...logs].reverse();
     for (const log of reversedLogs) {
       if (log.detailedWorkout) {
         const exerciseLog = log.detailedWorkout.find(ex => ex.exerciseId === exerciseId);
-        if (exerciseLog && exerciseLog.sets.length >= setNumber) {
+        if (exerciseLog && exerciseLog.sets && exerciseLog.sets.length >= setNumber) {
           return exerciseLog.sets[setNumber - 1];
         }
       }

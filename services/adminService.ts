@@ -1,3 +1,4 @@
+
 import { supabase } from '../lib/supabaseClient';
 import { UserActivity, Video, AdminUserView, SubscriptionTier, TransactionLog } from '../types';
 
@@ -75,7 +76,7 @@ export const getAllUsers = async (): Promise<AdminUserView[]> => {
         .from('profiles')
         .select('*');
 
-    if (error) {
+    if (error || !data) {
         console.error("Error fetching users:", error);
         return [];
     }

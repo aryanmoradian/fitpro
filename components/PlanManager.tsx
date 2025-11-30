@@ -51,15 +51,17 @@ const PlanManager: React.FC<PlanManagerProps> = ({
 
   // --- STATS CALCULATION ---
   const workoutStats = useMemo(() => {
-    const totalSets = workoutPlan.reduce((acc, ex) => acc + (ex.sets || 0), 0);
-    const totalExercises = workoutPlan.length;
+    const safePlan = workoutPlan || [];
+    const totalSets = safePlan.reduce((acc, ex) => acc + (ex.sets || 0), 0);
+    const totalExercises = safePlan.length;
     const estimatedTime = Math.round((totalSets * 2) + (totalSets * 1.5)); // Roughly 3.5 mins per set including rest
-    const muscles = Array.from(new Set(workoutPlan.map(ex => ex.muscleGroup).filter(Boolean)));
+    const muscles = Array.from(new Set(safePlan.map(ex => ex.muscleGroup).filter(Boolean)));
     return { totalSets, totalExercises, estimatedTime, muscles };
   }, [workoutPlan]);
 
   const nutritionStats = useMemo(() => {
-    const total = nutritionPlan.reduce((acc, item) => ({
+    const safePlan = nutritionPlan || [];
+    const total = safePlan.reduce((acc, item) => ({
         calories: acc.calories + (item.macros?.calories || 0),
         protein: acc.protein + (item.macros?.protein || 0),
         carbs: acc.carbs + (item.macros?.carbs || 0),
@@ -98,7 +100,7 @@ const PlanManager: React.FC<PlanManagerProps> = ({
             id: Date.now().toString(),
             name: `AI: ${goal.substring(0, 15)}...`,
             dayOfWeek: targetDay,
-            exercises: workoutPlan.map(ex => ({...ex, id: Date.now() + Math.random().toString()}))
+            exercises: (workoutPlan || []).map(ex => ({...ex, id: Date.now() + Math.random().toString()}))
         };
 
         setWeeklyWorkoutPlan(prev => {
@@ -121,7 +123,7 @@ const PlanManager: React.FC<PlanManagerProps> = ({
             snacks: []
         };
 
-        nutritionPlan.forEach(item => {
+        (nutritionPlan || []).forEach(item => {
             const entry: MealEntry = {
                 id: Date.now() + Math.random().toString(),
                 foodId: 'ai-gen',
@@ -161,7 +163,7 @@ const PlanManager: React.FC<PlanManagerProps> = ({
       rest: newExercise.rest || 60,
       notes: newExercise.notes || ''
     };
-    setWorkoutPlan(prev => [...prev, exercise]);
+    setWorkoutPlan(prev => [...(prev || []), exercise]);
     setNewExercise({ name: '', sets: 3, reps: '8-12', rest: 60, notes: '' });
   };
 
@@ -174,7 +176,7 @@ const PlanManager: React.FC<PlanManagerProps> = ({
       macros: newNutritionItem.macros || { protein: 0, carbs: 0, fats: 0, calories: 0 },
       completed: false
     };
-    setNutritionPlan(prev => [...prev, item]);
+    setNutritionPlan(prev => [...(prev || []), item]);
     setNewNutritionItem({ 
       title: '', details: '', 
       macros: { protein: 0, carbs: 0, fats: 0, calories: 0 } 
@@ -182,11 +184,11 @@ const PlanManager: React.FC<PlanManagerProps> = ({
   };
 
   const deleteExercise = (id: string) => {
-    setWorkoutPlan(prev => prev.filter(e => e.id !== id));
+    setWorkoutPlan(prev => (prev || []).filter(e => e.id !== id));
   };
 
   const deleteNutrition = (id: string) => {
-    setNutritionPlan(prev => prev.filter(p => p.id !== id));
+    setNutritionPlan(prev => (prev || []).filter(p => p.id !== id));
   };
 
   return (
@@ -293,7 +295,7 @@ const PlanManager: React.FC<PlanManagerProps> = ({
             </button>
             
             {/* --- Stats Summary Card (New Feature) --- */}
-            {((activeTab === 'workout' && workoutPlan.length > 0) || (activeTab === 'nutrition' && nutritionPlan.length > 0)) && (
+            {((activeTab === 'workout' && (workoutPlan || []).length > 0) || (activeTab === 'nutrition' && (nutritionPlan || []).length > 0)) && (
                 <div className="bg-black/30 border border-white/10 rounded-xl p-5 mb-4 animate-in fade-in slide-in-from-top-4">
                     <h3 className="font-bold text-white mb-3 flex items-center">
                         <Activity className="w-4 h-4 ml-2 text-blue-400" />
@@ -376,7 +378,7 @@ const PlanManager: React.FC<PlanManagerProps> = ({
                     </select>
                     <button 
                       onClick={handleImportToWeekly}
-                      disabled={isGenerating || (activeTab === 'workout' ? workoutPlan.length === 0 : nutritionPlan.length === 0)}
+                      disabled={isGenerating || (activeTab === 'workout' ? (workoutPlan || []).length === 0 : (nutritionPlan || []).length === 0)}
                       className="flex-1 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center text-sm transition shadow-lg shadow-purple-900/20"
                     >
                         <Save className="w-4 h-4 ml-2" /> افزودن به برنامه
@@ -406,14 +408,14 @@ const PlanManager: React.FC<PlanManagerProps> = ({
                 </div>
                 
                 <div className="flex-1 overflow-y-auto pl-2 custom-scrollbar">
-                  {workoutPlan.length === 0 ? (
+                  {(workoutPlan || []).length === 0 ? (
                     <div className="text-center text-gray-500 mt-10 flex flex-col items-center">
                         <Dumbbell className="w-12 h-12 mb-2 opacity-20"/>
                         لیست خالی است.
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      {workoutPlan.map((ex, idx) => (
+                      {(workoutPlan || []).map((ex, idx) => (
                         <div key={ex.id} className="bg-black/20 p-4 rounded-lg border border-white/10 flex justify-between items-center group hover:border-blue-500/30 transition">
                           <div className="flex items-center space-x-4 space-x-reverse">
                             <span className="text-blue-500 font-bold text-lg w-6 text-center">{idx + 1}</span>
@@ -451,13 +453,13 @@ const PlanManager: React.FC<PlanManagerProps> = ({
                  </div>
 
                  <div className="flex-1 overflow-y-auto pl-2 space-y-2 custom-scrollbar">
-                   {nutritionPlan.length === 0 ? (
+                   {(nutritionPlan || []).length === 0 ? (
                       <div className="text-center text-gray-500 mt-10 flex flex-col items-center">
                           <Utensils className="w-12 h-12 mb-2 opacity-20"/>
                           لیست خالی است.
                       </div>
                    ) : (
-                      nutritionPlan.map(item => (
+                      (nutritionPlan || []).map(item => (
                         <div key={item.id} className="bg-black/20 p-3 rounded-lg border border-white/10 group hover:border-green-500/30 transition flex justify-between items-center">
                            <div>
                                 <h4 className="font-semibold text-white text-sm">{item.title}</h4>

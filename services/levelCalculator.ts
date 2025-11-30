@@ -29,7 +29,8 @@ const MAX_SCORES = {
 };
 
 export const calculateAthleteLevel = (profile: UserProfile, logs: DailyLog[]): LevelInfo => {
-  const recentLogs = logs.slice(-30);
+  const safeLogs = logs || [];
+  const recentLogs = safeLogs.slice(-30);
 
   // 1. Consistency Score (0-500 points)
   const workoutDays = recentLogs.filter(log => log.workoutScore > 5).length;
@@ -61,7 +62,7 @@ export const calculateAthleteLevel = (profile: UserProfile, logs: DailyLog[]): L
     }
   }
   
-  if (profile.metricsHistory.length > 0) {
+  if (profile.metricsHistory && profile.metricsHistory.length > 0) {
       const lastMetric = profile.metricsHistory[profile.metricsHistory.length-1];
       if(lastMetric.bodyFat && lastMetric.muscleMass) {
           const fatScore = Math.max(0, (25 - lastMetric.bodyFat) / 15) * 75; // Stricter fat %

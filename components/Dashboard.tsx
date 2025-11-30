@@ -60,6 +60,10 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
   const { logs, guidanceState, setCurrentView, profile, bodyMetrics } = props;
   const isPremium = profile.subscriptionTier !== 'free';
 
+  // Defensive array handling
+  const safeLogs = logs || [];
+  const safeMetrics = bodyMetrics || [];
+
   return (
     <div className="space-y-6">
       {/* Greeting Header */}
@@ -81,7 +85,7 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
       {/* Guidance */}
       <GuidanceTracker guidanceState={guidanceState} setCurrentView={setCurrentView} />
 
-      <NewsTicker logs={logs} profile={profile} metrics={bodyMetrics} setCurrentView={setCurrentView} />
+      <NewsTicker logs={safeLogs} profile={profile} metrics={safeMetrics} setCurrentView={setCurrentView} />
 
       {/* Premium Modules Grid */}
       <div className="mt-8">

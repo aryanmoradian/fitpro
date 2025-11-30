@@ -38,7 +38,7 @@ const AdvancedAnalyticsForm: React.FC<{
   const handleGeneticChange = (id: string, field: 'trait' | 'result' | 'impact', value: string) => {
     setFormData(prev => ({
       ...prev,
-      geneticProfile: prev.geneticProfile.map(item =>
+      geneticProfile: (prev.geneticProfile || []).map(item =>
         item.id === id ? { ...item, [field]: value } : item
       ),
     }));
@@ -46,17 +46,17 @@ const AdvancedAnalyticsForm: React.FC<{
 
   const addGeneticTrait = () => {
     const newTrait: GeneticTrait = { id: Date.now().toString(), trait: '', result: '', impact: 'Medium' };
-    setFormData(prev => ({ ...prev, geneticProfile: [...prev.geneticProfile, newTrait] }));
+    setFormData(prev => ({ ...prev, geneticProfile: [...(prev.geneticProfile || []), newTrait] }));
   };
 
   const removeGeneticTrait = (id: string) => {
-    setFormData(prev => ({ ...prev, geneticProfile: prev.geneticProfile.filter(item => item.id !== id) }));
+    setFormData(prev => ({ ...prev, geneticProfile: (prev.geneticProfile || []).filter(item => item.id !== id) }));
   };
 
   const handleHormoneChange = (id: string, field: 'date' | 'testosterone' | 'cortisol' | 'thyroidTSH', value: string) => {
      setFormData(prev => ({
       ...prev,
-      hormonalHistory: prev.hormonalHistory.map(item =>
+      hormonalHistory: (prev.hormonalHistory || []).map(item =>
         item.id === id ? { ...item, [field]: field === 'date' ? value : Number(value) } : item
       ),
     }));
@@ -64,11 +64,11 @@ const AdvancedAnalyticsForm: React.FC<{
 
   const addHormoneEntry = () => {
     const newEntry: HormonePanel = { id: Date.now().toString(), date: new Date().toLocaleDateString('fa-IR', {year: 'numeric', month: '2-digit'}), testosterone: 0, cortisol: 0, thyroidTSH: 0 };
-    setFormData(prev => ({ ...prev, hormonalHistory: [...prev.hormonalHistory, newEntry] }));
+    setFormData(prev => ({ ...prev, hormonalHistory: [...(prev.hormonalHistory || []), newEntry] }));
   };
 
   const removeHormoneEntry = (id: string) => {
-     setFormData(prev => ({ ...prev, hormonalHistory: prev.hormonalHistory.filter(item => item.id !== id) }));
+     setFormData(prev => ({ ...prev, hormonalHistory: (prev.hormonalHistory || []).filter(item => item.id !== id) }));
   };
 
 
@@ -114,7 +114,7 @@ const AdvancedAnalyticsForm: React.FC<{
                 <button onClick={addGeneticTrait} className="text-xs bg-purple-600/50 text-white px-2 py-1 rounded flex items-center"><Plus size={14} className="ml-1"/> افزودن</button>
             </div>
             <div className="space-y-2 max-h-48 overflow-y-auto">
-                {formData.geneticProfile.map(item => (
+                {formData.geneticProfile?.map(item => (
                     <div key={item.id} className="grid grid-cols-8 gap-2 items-center">
                         <input placeholder="ویژگی (مثلا: نوع تار ماهیچه‌ای)" value={item.trait} onChange={e => handleGeneticChange(item.id, 'trait', e.target.value)} className="col-span-3 input-styled p-1 text-xs"/>
                         <input placeholder="نتیجه (مثلا: تند انقباض)" value={item.result} onChange={e => handleGeneticChange(item.id, 'result', e.target.value)} className="col-span-3 input-styled p-1 text-xs"/>
@@ -134,7 +134,7 @@ const AdvancedAnalyticsForm: React.FC<{
                 <button onClick={addHormoneEntry} className="text-xs bg-red-600/50 text-white px-2 py-1 rounded flex items-center"><Plus size={14} className="ml-1"/> افزودن</button>
             </div>
             <div className="space-y-2 max-h-48 overflow-y-auto">
-                {formData.hormonalHistory.map(item => (
+                {formData.hormonalHistory?.map(item => (
                     <div key={item.id} className="grid grid-cols-10 gap-2 items-center">
                          <input placeholder="تاریخ" value={item.date} onChange={e => handleHormoneChange(item.id, 'date', e.target.value)} className="col-span-2 input-styled p-1 text-xs"/>
                          <input placeholder="تستوسترون" type="number" value={item.testosterone} onChange={e => handleHormoneChange(item.id, 'testosterone', e.target.value)} className="col-span-2 input-styled p-1 text-xs"/>
@@ -241,10 +241,10 @@ const AdvancedAnalyticsDashboard: React.FC<{
 
   const hasTrainingData = logs.length > 0;
   const hasNutritionData = logs.some(l => l.consumedMacros && l.consumedMacros.calories > 0);
-  const hasBodyCompData = profile.metricsHistory.length > 1;
+  const hasBodyCompData = profile.metricsHistory && profile.metricsHistory.length > 1;
   const hasRecoveryData = logs.some(l => l.sleepHours && l.sleepHours > 0);
   const hasKpiData = profile.advancedHealth && profile.advancedHealth.vo2Max > 0;
-  const hasBioData = !!profile.advancedHealth && (profile.advancedHealth.geneticProfile.length > 0 || profile.advancedHealth.hormonalHistory.length > 0);
+  const hasBioData = !!profile.advancedHealth && ((profile.advancedHealth.geneticProfile?.length || 0) > 0 || (profile.advancedHealth.hormonalHistory?.length || 0) > 0);
   const hasSynergyData = hasTrainingData && hasNutritionData;
 
   const lastLog = logs[logs.length-1];
@@ -281,7 +281,7 @@ const AdvancedAnalyticsDashboard: React.FC<{
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             
-            <WidgetCard title="شاخص‌های کلیدی عملکرد" icon={Gauge} hasData={hasKpiData} emptyState={{ message: "برای آنالیز دقیق‌تر، شاخص‌های عملکردی مانند VO2 Max و سن متابولیک را وارد کنید.", ctaText: "افزودن داده‌ها", onCtaClick: onEdit }} color="cyan">
+            <WidgetCard title="شاخص‌های کلیدی عملکرد" icon={Gauge} hasData={!!hasKpiData} emptyState={{ message: "برای آنالیز دقیق‌تر، شاخص‌های عملکردی مانند VO2 Max و سن متابولیک را وارد کنید.", ctaText: "افزودن داده‌ها", onCtaClick: onEdit }} color="cyan">
                 <div className="grid grid-cols-3 gap-2 text-center h-full content-around">
                     <div>
                         <div className="text-sm text-gray-400 flex items-center justify-center gap-1">VO2 Max <InfoTooltip info="حداکثر اکسیژن مصرفی بدن حین ورزش (ml/kg/min). بالاتر بهتر است." /></div>
@@ -335,7 +335,7 @@ const AdvancedAnalyticsDashboard: React.FC<{
                 </ResponsiveContainer>
             </WidgetCard>
             
-            <WidgetCard title="تحلیل ترکیب بدنی" icon={BarChart2} hasData={hasBodyCompData} emptyState={{ message: "برای مشاهده روند، حداقل دو بار اطلاعات بدن خود را ثبت کنید.", ctaText: "ثبت وضعیت جدید", onCtaClick: () => setCurrentView(AppView.BODY_ANALYSIS) }} color="purple">
+            <WidgetCard title="تحلیل ترکیب بدنی" icon={BarChart2} hasData={!!hasBodyCompData} emptyState={{ message: "برای مشاهده روند، حداقل دو بار اطلاعات بدن خود را ثبت کنید.", ctaText: "ثبت وضعیت جدید", onCtaClick: () => setCurrentView(AppView.BODY_ANALYSIS) }} color="purple">
                 <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={profile.metricsHistory} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -351,13 +351,13 @@ const AdvancedAnalyticsDashboard: React.FC<{
             
             <WidgetCard title="پروفایل بیولوژیک و ژنتیک" icon={Dna} hasData={hasBioData} emptyState={{ message: "پروفایل ژنتیکی و هورمونی خود را برای دریافت توصیه‌های شخصی‌سازی‌شده تکمیل کنید.", ctaText: "تکمیل پروفایل", onCtaClick: onEdit }} color="red">
                 <div className="space-y-3 overflow-y-auto max-h-52 custom-scrollbar">
-                    {profile.advancedHealth?.geneticProfile.slice(0, 4).map(g => (
+                    {(profile.advancedHealth?.geneticProfile || []).slice(0, 4).map(g => (
                         <div key={g.id} className="text-sm bg-white/5 p-2 rounded flex justify-between">
                             <span className="text-gray-300">{g.trait}</span>
                             <span className="font-bold text-white">{g.result}</span>
                         </div>
                     ))}
-                     {profile.advancedHealth && profile.advancedHealth?.geneticProfile.length > 4 && <p className="text-xs text-center text-gray-500">و موارد دیگر...</p>}
+                     {profile.advancedHealth && (profile.advancedHealth?.geneticProfile?.length || 0) > 4 && <p className="text-xs text-center text-gray-500">و موارد دیگر...</p>}
                 </div>
             </WidgetCard>
             

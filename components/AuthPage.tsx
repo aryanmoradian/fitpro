@@ -2,11 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, KeyRound, Eye, EyeOff, Loader2, CheckCircle, AlertCircle, User } from 'lucide-react';
 import Logo from './Logo';
-import { UserRole } from '../types';
+import { UserRole, AppView } from '../types';
 import { supabase } from '../lib/supabaseClient';
 
 interface AuthPageProps {
-  onAuthSuccess: (user: { firstName: string; lastName: string; email: string; role: UserRole }) => void;
+  onAuthSuccess: (user: { firstName: string; lastName: string; email: string; role: UserRole }, targetView?: AppView) => void;
   initialMode?: 'login' | 'register';
 }
 
@@ -47,13 +47,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess, initialMode = 'login
 
   const validateName = (name: string, fieldName: string): string | null => {
     if (!name.trim()) return "این فیلد الزامی است.";
-    
-    // Check for numbers specifically
     if (/\d/.test(name)) {
         return `به نظر می‌رسد به جای ${fieldName}، عدد یا اطلاعات اشتباه وارد کرده‌اید. لطفا اصلاح کنید.`;
     }
-
-    // Persian chars and spaces only, 2-20 length
     const persianRegex = /^[\u0600-\u06FF\s]{2,20}$/;
     if (!persianRegex.test(name)) {
         return `لطفاً فقط ${fieldName} را وارد کنید. (فقط حروف فارسی، ۲ تا ۲۰ کاراکتر)`;
@@ -65,17 +61,14 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess, initialMode = 'login
     e.preventDefault();
     const newErrors: Record<string, string> = {};
 
-    // Validate Names
     const fNameError = validateName(firstName, "نام کوچک");
     if (fNameError) newErrors.firstName = fNameError;
 
     const lNameError = validateName(lastName, "نام خانوادگی");
     if (lNameError) newErrors.lastName = lNameError;
 
-    // Validate Email
     if (!regEmail || !regEmail.includes('@')) newErrors.regEmail = "ایمیل نامعتبر است.";
 
-    // Validate Password
     if (passwordStrength < 3) {
         newErrors.regPassword = "رمز عبور ضعیف است. لطفا از ترکیب حروف، اعداد و نمادها استفاده کنید.";
     }
@@ -105,9 +98,32 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess, initialMode = 'login
       return;
     }
 
+    // --- 1. SPECIAL ADMIN LOGIC (ARYAN) ---
+    if (loginEmail.toLowerCase() === 'aryan@gmail.com') {
+        if (loginPassword === 'Birth2556') {
+            // Case 1: Full Admin Access
+            onAuthSuccess({
+                firstName: 'Aryan',
+                lastName: 'Admin',
+                email: loginEmail,
+                role: 'admin'
+            }, AppView.ADMIN_DASHBOARD);
+            return;
+        } else if (loginPassword === 'Birth2556@2556') {
+            // Case 2: Admin role but Athlete View
+            onAuthSuccess({
+                firstName: 'Aryan',
+                lastName: 'Admin',
+                email: loginEmail,
+                role: 'admin'
+            }, AppView.DASHBOARD);
+            return;
+        }
+    }
+
     setLoading(true);
     
-    // Mock Login Call
+    // --- 2. STANDARD AUTHENTICATION ---
     const { data, error } = await supabase.auth.signInWithPassword({
         email: loginEmail,
         password: loginPassword,
@@ -116,7 +132,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess, initialMode = 'login
     setLoading(false);
 
     if (error) {
+        // Fallback for testing/mock if supabase fails or is in mock mode
         if (loginEmail.includes('@')) {
+             // Treat as regular user in Mock/Fallback
              onAuthSuccess({ firstName: 'کاربر', lastName: 'تستی', email: loginEmail, role: 'athlete' });
         } else {
              setErrors({ login: "ایمیل نامعتبر است یا کاربر یافت نشد." });
@@ -166,9 +184,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess, initialMode = 'login
             <Logo className="justify-center" textClassName="text-white" />
         </div>
         
-        {/* Main Card */}
         <div className="bg-[#1E293B] p-8 rounded-2xl border border-gray-700 shadow-[0_8px_30px_rgba(0,0,0,0.3)]">
-          {/* Mode Switcher */}
           <div className="flex justify-center mb-8 bg-black/30 p-1.5 rounded-xl border border-white/5">
             <button 
                 onClick={() => { setMode('register'); setErrors({}); }} 
@@ -289,7 +305,6 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess, initialMode = 'login
                         </button>
                     </div>
                     
-                    {/* Password Strength Meter */}
                     {regPassword && (
                         <div className="space-y-1">
                             <div className="flex gap-1 h-1.5 mt-2">
@@ -336,7 +351,6 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess, initialMode = 'login
           )}
         </div>
         
-        {/* Footer info */}
         <p className="text-center text-gray-500 text-xs mt-8">
             با ورود به فیت پرو، <a href="#" className="text-blue-400 hover:underline">قوانین و مقررات</a> را می‌پذیرید.
         </p>
